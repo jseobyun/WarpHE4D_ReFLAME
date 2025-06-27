@@ -2,46 +2,17 @@
 <!-- PROJECT LOGO -->
 <br />
 <p align="center">
-  <h1 align="center">ReFLAME : WarpHE4D based FLAME fitting on 3D Head</h1>
+  <h1 align="center">ReFLAME : WarpHE4D based FLAME fitting</h1>
   <p align="center">    
     <a href="https://jseobyun.github.io/"><strong>Jongseob Yun</strong></a>
   </p>  
-  <img src="./assets/facescape.gif" width="49%"/>
-  <img src="./assets/faceverse.gif" width="49%"/>
-  <img src="./assets/nphm.gif" width="49%"/>
-  <img src="./assets/nphm2.gif" width="49%"/>
-</p>
+  <img src="./assets/facescape.gif" width="48%"/>
+  <img src="./assets/faceverse.gif" width="48%"/>
+  <img src="./assets/nphm.gif" width="48%"/>
+  <img src="./assets/nphm2.gif" width="48%"/></p>
 
 <br />
-<br />
 
-
-<!-- TABLE OF CONTENTS -->
-<details open="open" style='padding: 10px; border-radius:5px 30px 30px 5px; border-style: solid; border-width: 1px;'>
-  <summary>Table of Contents</summary>
-  <ol>
-    <li>
-      <a href="#Acknowledgement">Acknowledgement</a>      
-    </li>
-    <li>
-      <a href="#notification">Notification</a>      
-    </li>
-    <li>
-      <a href="#installation">Installation</a>      
-    </li>
-    <li>
-      <a href="#usage">Usage</a>
-    </li>
-    <li>
-      <a href="#license">License</a>
-    </li>
-    <li>
-      <a href="#citation">Citation</a>
-    </li>    
-  </ol>
-</details>
-<br />
-<br />
 
 ## Acknowledgement
 
