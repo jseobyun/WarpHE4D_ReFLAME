@@ -6,10 +6,10 @@
   <p align="center">    
     <a href="https://jseobyun.github.io/"><strong>Jongseob Yun</strong></a>
   </p>  
-  <img src="./assets/facescape.gif" width="48%"/>
-  <img src="./assets/faceverse.gif" width="48%"/>
-  <img src="./assets/nphm.gif" width="48%"/>
-  <img src="./assets/nphm2.gif" width="48%"/></p>
+  <img src="./assets/facescape.gif" width="45%"/>
+  <img src="./assets/faceverse.gif" width="45%"/>
+  <img src="./assets/nphm.gif" width="45%"/>
+  <img src="./assets/nphm2.gif" width="45%"/></p>
 
 <br />
 
