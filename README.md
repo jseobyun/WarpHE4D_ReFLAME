@@ -13,7 +13,6 @@
     <img src="./assets/nphm.gif" width="49%"/>
     <img src="./assets/nphm2.gif" width="49%"/>
 </p>
-
 <br />
 
 
@@ -108,6 +107,28 @@ python3 run_fit.py --data_dir $DATA_DIR --opt_lambda 30 --coarse_steps 1000 --re
   <img src="./assets/nphm_texmap.jpg" width="24%"/>
   <img src="./assets/nphm2_texmap.jpg" width="24%"/>
 </p>
+
+## Result and Discussion
+<br/>
+<p align="center">
+  <img src="./assets/00.png" width="30%"/>
+  <img src="./assets/01.png" width="30%"/>
+  <img src="./assets/02.png" width="30%"/>
+  <img src="./assets/20.png" width="30%"/>
+  <img src="./assets/21.png" width="30%"/>
+  <img src="./assets/22.png" width="30%"/>
+  <img src="./assets/30.png" width="30%"/>
+  <img src="./assets/31.png" width="30%"/>
+  <img src="./assets/32.png" width="30%"/>
+  <i style="color: gray;">Head scan (light green) and optimized FLAME (orange).</i>
+</p>
+
+
+- I think ReFLAME works well in most cases. It can guide hard region such as hair part as well. 
+- One thing that I find unfortunate is that, accurately fitting the ear region remains difficult compared to other parts.
+- Still, achieving fitting without losing the ear shape is already a significant improvement.
+
+
 
 ## License
 - This code is provided under a 3-clause BSD license that can be found in the LICENSE file. By using, distributing, or contributing to this project, you agree
