@@ -1,0 +1,25 @@
+<scene version="2.1.0">
+
+<!-- Defaults, these can be set via the command line: -Darg=value -->
+
+	<default name="spp" value="128"/>
+	<default name="resx" value="960"/>
+	<default name="resy" value="540"/>
+
+<!-- Materials -->
+
+	<bsdf type="twosided" id="default-bsdf">
+		<bsdf type="diffuse"/>
+	</bsdf>
+
+<!-- Emitters -->
+
+	<emitter type="envmap" id="World">
+		<string name="filename" value="textures/kloppenheim_06_2k.hdr"/>
+		<float name="scale" value="1.000000"/>
+		<transform name="to_world">
+			<matrix value="0.000000 0.000000 1.000000 0.000000 0.000000 1.000000 0.000000 0.000000 -1.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 1.000000"/>
+		</transform>
+	</emitter>
+
+</scene>
