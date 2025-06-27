@@ -20,7 +20,8 @@
 ## Acknowledgement
 
 - I sincerely thank [large-steps](https://github.com/rgl-epfl/large-steps-pytorch), whose work was of great help and inspiration. I strongly encourage everyone to read this outstanding paper!
-- I also appreciate to [DWpose](https://github.com/IDEA-Research/DWPose). It was the final piece that refined eye and mouth regions."
+- I also appreciate to [DWpose](https://github.com/IDEA-Research/DWPose). It was the final piece that refined eye and mouth regions.
+- The sources of visualizations are [FaceScape](https://facescape.nju.edu.cn/), [FaceVerse](https://github.com/LizhenWangT/FaceVerse), [NPHM](https://github.com/SimonGiebenhain/NPHM) datasets. I truly appreciate to authors. 
 
 ## Notification
 
@@ -28,6 +29,7 @@
 - UVs from **WarpHE4D** are primarily used to improve performance beyond standard cues (e.g. landmarks, masks, depths).
 - I didn't use FLAME linear bases during the optimization. Only landmark embeddings.npy is required. 
 - I'm happy to see that even non-facial regions are well fitted! Make it as FLAME easily.
+- I'm sorry for not providing an example head mesh, as most head meshes are protected under licenses and cannot be publicly shared.
 
 ## Installation
 
@@ -56,13 +58,18 @@ conda install -c conda-forge cudatoolkit-dev
 pip install -r requirements.txt
 ```
 
+## Prerequisites
+- Download pretrained WarpHE4D checkpoint from here and place it into `./ckpts/warphead/warph3ad_fast.pt`.
+- Download DWpose from [HuggingFace](https://huggingface.co/yzd-v/DWPose) and place them into `./ckpts/yzd-v/DWPose/*`.
+- Download `landmark_embedding.npy` from [FLAME](https://flame.is.tue.mpg.de) and place it into `./templates/FLAME2023/landmark_embedding.npy`.
+
 ## Data preparation
-- Even though UV supervision strongly reduce the hard initialization such as procrustes-alignment or ICP, It still needs light initialization.
+- Even though UV supervision significantly reduces the need for hard initialization steps such as Procrustes alignment or ICP, it still requires a mild initialization.
 <p align="center">
   <img src="./assets/data_normalization.png" width="45%"/>
 </p>
 
-- As shown in above Figure, 3D head mesh should be with in unit cube bounded in [-1, 1].
+- As shown in above Figure, 3D head mesh should be within unit cube bounded in [-1, 1].
 - Additionally, +y axis is up-direction and +z axis is front facing direction (Red: x axis, Green : y axis, Blue : z axis)
 ```
 $DATA_DIR
@@ -73,6 +80,8 @@ $DATA_DIR
 ```
 
 - Each data should be formatted like above structure.
+
+
 ## Usage
 ```bash
 cd reflame
@@ -80,7 +89,7 @@ python3 run_fit.py --data_dir $DATA_DIR --opt_lambda 30 --coarse_steps 1000 --re
 # add --vis and --save if you need to visualize or save the results.
 # $DATA_dir should contain a single set of textured mesh (obj, mtl, png/jpg/jpeg)
 ```
-- If the result is not plausible, tune the hyperparameter first. In my experience, keypoint loss is too powerful, so carefully tune it.
+- If the result is not good, tune the hyperparameters first. In my experience, keypoint loss is too powerful, so carefully tune it.
 - opt_lambda works similar as Laplacian smoothing factor. If it increases, mesh deformation become smooth and stiff. 30 is best!
 - After FLAME fitting, 1K (1024, 1024) texture map is optimized together.
 <p align="center">
