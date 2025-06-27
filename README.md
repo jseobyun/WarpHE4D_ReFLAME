@@ -1,15 +1,18 @@
 
 <!-- PROJECT LOGO -->
 <br />
+<h1 align="center">ReFLAME : WarpHE4D based FLAME fitting</h1>
+
 <p align="center">
-  <h1 align="center">ReFLAME : WarpHE4D based FLAME fitting</h1>
-  <p align="center">    
-    <a href="https://jseobyun.github.io/"><strong>Jongseob Yun</strong></a>
-  </p>  
-  <img src="./assets/facescape.gif" width="45%"/>
-  <img src="./assets/faceverse.gif" width="45%"/>
-  <img src="./assets/nphm.gif" width="45%"/>
-  <img src="./assets/nphm2.gif" width="45%"/></p>
+  <a href="https://jseobyun.github.io/"><strong>Jongseob Yun</strong></a>
+</p>
+<br />
+<p align="center">
+    <img src="./assets/facescape.gif" width="45%"/>
+    <img src="./assets/faceverse.gif" width="45%"/>
+    <img src="./assets/nphm.gif" width="45%"/>
+    <img src="./assets/nphm2.gif" width="45%"/>
+</p>
 
 <br />
 
