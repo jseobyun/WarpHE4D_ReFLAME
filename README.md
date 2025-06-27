@@ -8,10 +8,10 @@
 </p>
 <br />
 <p align="center">
-    <img src="./assets/facescape.gif" width="45%"/>
-    <img src="./assets/faceverse.gif" width="45%"/>
-    <img src="./assets/nphm.gif" width="45%"/>
-    <img src="./assets/nphm2.gif" width="45%"/>
+    <img src="./assets/facescape.gif" width="49%"/>
+    <img src="./assets/faceverse.gif" width="49%"/>
+    <img src="./assets/nphm.gif" width="49%"/>
+    <img src="./assets/nphm2.gif" width="49%"/>
 </p>
 
 <br />
@@ -26,14 +26,15 @@
 
 - This repository provides an effective pipeline for **fitting the FLAME model** to arbitrary textured 3D head meshes (OBJs).
 - UVs from **WarpHE4D** are primarily used to improve performance beyond standard cues (e.g. landmarks, masks, depths).
-- As a result, I'm happy to see that even non-facial regions are well fitted!
+- I didn't use FLAME linear bases during the optimization. Only landmark embeddings.npy is required. 
+- I'm happy to see that even non-facial regions are well fitted! Make it as FLAME easily.
 
 ## Installation
 
 - The main structure of this repository stems from [large-steps](https://github.com/rgl-epfl/large-steps-pytorch). Please check it first.
 
 ```bash
-git clone --recursive https://github.com/jseobyun/ReFLAME.git
+git clone --recursive https://github.com/jseobyun/WarpHE4D_ReFLAME.git
 cd reflame
 pip install .
 ```
@@ -55,6 +56,23 @@ conda install -c conda-forge cudatoolkit-dev
 pip install -r requirements.txt
 ```
 
+## Data preparation
+- Even though UV supervision strongly reduce the hard initialization such as procrustes-alignment or ICP, It still needs light initialization.
+<p align="center">
+  <img src="./assets/data_normalization.png" width="45%"/>
+</p>
+
+- As shown in above Figure, 3D head mesh should be with in unit cube bounded in [-1, 1].
+- Additionally, +y axis is up-direction and +z axis is front facing direction (Red: x axis, Green : y axis, Blue : z axis)
+```
+$DATA_DIR
+  |-???.obj (obj file that contains vt)
+  |-???.mtl (mtl file that include texture map name with map_Kd keyword)
+  |-???.png/jpg/jpeg (texture map image, under 2K recomended for preventing rendering failure)
+
+```
+
+- Each data should be formatted like above structure.
 ## Usage
 ```bash
 cd reflame
@@ -62,6 +80,8 @@ python3 run_fit.py --data_dir $DATA_DIR --opt_lambda 30 --coarse_steps 1000 --re
 # add --vis and --save if you need to visualize or save the results.
 # $DATA_dir should contain a single set of textured mesh (obj, mtl, png/jpg/jpeg)
 ```
+- If the result is not plausible, tune the hyperparameter first. In my experience, keypoint loss is too powerful, so carefully tune it.
+- opt_lambda works similar as Laplacian smoothing factor. If it increases, mesh deformation become smooth and stiff. 30 is best!
 - After FLAME fitting, 1K (1024, 1024) texture map is optimized together.
 <p align="center">
   <img src="./assets/facescape_tex.gif" width="49%"/>
@@ -70,7 +90,7 @@ python3 run_fit.py --data_dir $DATA_DIR --opt_lambda 30 --coarse_steps 1000 --re
   <img src="./assets/nphm2_tex.gif" width="49%"/>
 </p>
 
-- Since differentiable rendering based texture optimization is very sensitive to view selection, there is some artifact on the final texture map result.
+- Since differentiable rendering based texture optimization is very sensitive to view selections, there are some artifacts on the final texture map result.
 - If you want to improve this, consider more various views (not implemented in this code) or novel loss functions (I will appreciate if you share with me.). 
   
 <p align="center">
