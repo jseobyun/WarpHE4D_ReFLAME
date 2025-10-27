@@ -120,6 +120,7 @@ python3 run_fit.py --data_dir $DATA_DIR --opt_lambda 30 --coarse_steps 1000 --re
   <img src="./assets/30.png" width="30%"/>
   <img src="./assets/31.png" width="30%"/>
   <img src="./assets/32.png" width="30%"/>
+  <br/>
   <i style="color: gray;">Head scan (light green) and optimized FLAME (orange).</i>
 </p>
 

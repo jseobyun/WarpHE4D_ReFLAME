@@ -13,7 +13,7 @@ from largesteps.render import NVDRenderer
 from largesteps.parameterize import from_differential, to_differential
 from largesteps.geometry import compute_matrix, compute_vertex_normals, compute_face_normals
 from largesteps.optimize import AdamUniform
-from warphead.utils import (optimize_eyeballs, to_np, load_mesh_under_dir,
+from utils import (optimize_eyeballs, to_np, load_mesh_under_dir,
                             total_variation_loss, gen_orbit_views, vertices2landmarks,
                             load_flame_meta, to_cuda, build_o3d_mesh, FaceKeypointDetector)
 
@@ -22,7 +22,7 @@ from warphead.utils import (optimize_eyeballs, to_np, load_mesh_under_dir,
 def parse_config():
     parser = argparse.ArgumentParser("ReFLAME configuration")
     ### mandatory
-    parser.add_argument("--data_dir", type=str, default="/home/jseob/Downloads/uv_fit_test/013")
+    parser.add_argument("--data_dir", type=str, default="/home/jseob/Downloads/uv_fit_test/011")
     parser.add_argument("--opt_lambda", type=int, default=30, help="lambda used in optimization")
     parser.add_argument("--coarse_steps", type=int, default=700, help="Coarse fitting iterations")
     parser.add_argument("--refine_steps", type=int, default=300, help="Refine fitting iterations")
