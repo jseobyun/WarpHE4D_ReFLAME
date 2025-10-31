@@ -124,29 +124,42 @@ def load_mesh_under_dir(data_dir):
     for file_name in file_names:        
         if file_name.endswith(".mtl"):
             material_name = file_name
-            obj_name = material_name.replace(".mtl", ".obj")
+            obj_name = material_name.replace(".mtl", ".obj")    
 
-    if obj_name is None or material_name is None:
-        raise Exception(f"{data_dir} does not contain a valid obj file.")
 
-    mtl_path = os.path.join(data_dir, material_name)
+    # if obj_name is None or material_name is None:
+    #     raise Exception(f"{data_dir} does not contain a valid obj file.")
+    
+    
     texture_name = None
-    with open(mtl_path, 'r') as f:
-        lines = f.readlines()
-        for line in lines:
-            line = line.strip()
-            if line.startswith('map_Kd'):
-                # shlex handles quoted strings and spaces
-                tokens = line.split(" ")
-                if len(tokens) >= 2:
-                    texture_name = tokens[-1]
-    if texture_name is None:
-        raise Exception(f"{data_dir} does not contain a valid obj file.")
+    if material_name is not None:
+        mtl_path = os.path.join(data_dir, material_name)
+        with open(mtl_path, 'r') as f:
+            lines = f.readlines()
+            for line in lines:
+                line = line.strip()
+                if line.startswith('map_Kd'):
+                    # shlex handles quoted strings and spaces
+                    tokens = line.split(" ")
+                    if len(tokens) >= 2:
+                        texture_name = tokens[-1]
 
-    mesh_path = os.path.join(data_dir, obj_name)
-    if not os.path.exists(mesh_path):
+    # if texture_name is None:
+    #     raise Exception(f"{data_dir} does not contain a valid obj file.")
+    mesh_path = None
+    if obj_name is not None:
+        mesh_path = os.path.join(data_dir, obj_name)
+
+    if obj_name is None or not os.path.exists(mesh_path):
         mesh_path = os.path.join(data_dir, "raw.obj")
-    texture_path = os.path.join(data_dir, texture_name)
+    if obj_name is None or not os.path.exists(mesh_path): # th rp
+        obj_name = os.path.basename(data_dir)
+        mesh_path = os.path.join(data_dir, obj_name+".obj")
+
+    if texture_name is not None:
+        texture_path = os.path.join(data_dir, texture_name)
+    else:
+        texture_path = os.path.join(data_dir, obj_name+".jpg")
     mesh = trimesh.load(mesh_path, process=False)
     tex_img = Image.open(texture_path).resize((2048, 2048))  # 2k texture map for memory saving
     tex_img = np.asarray(tex_img).astype(np.float32) / 255.0
@@ -166,6 +179,42 @@ def load_mesh_under_dir(data_dir):
     uv = torch.from_numpy(uvs).cuda()
     tex_img = torch.from_numpy(tex_img).cuda()
     return v, n, f, uv, tex_img
+
+
+
+def load_mesh_rn360(data_dir):
+    mesh_path = os.path.join(data_dir, "mesh.obj")
+    M = np.load(os.path.join(data_dir, "mesh_coord_changer.npy"))
+    texture_path = os.path.join(data_dir, "mesh.jpg")
+    Rx = np.array([[1, 0, 0],
+                    [0, -1, 0],
+                    [0, 0, -1]], dtype=np.float32)
+
+    mesh = trimesh.load(mesh_path, process=False)
+    tex_img = Image.open(texture_path).resize((2048, 2048))  # 2k texture map for memory saving
+    tex_img = np.asarray(tex_img).astype(np.float32) / 255.0
+
+    verts = np.asarray(mesh.vertices).astype(np.float32)    
+
+    
+    verts = (M[:3, :3]@verts.transpose(1,0)).transpose(1,0) + M[:3,-1].reshape(1, 3)
+    verts = (Rx@verts.transpose(1,0)).transpose(1,0)
+    verts[:,1] -= 0.45
+    verts *= 7
+    mesh.vertices = verts
+
+    faces = np.asarray(mesh.faces).astype(np.int32)
+    normals = np.asarray(mesh.vertex_normals).astype(np.float32)
+    uvs = np.asarray(mesh.visual.uv).astype(np.float32)
+    uvs[:, 1] = 1 - uvs[:, 1]
+
+    v = torch.from_numpy(verts).cuda()
+    n = torch.from_numpy(normals).cuda()
+    f = torch.from_numpy(faces).cuda()
+    uv = torch.from_numpy(uvs).cuda()
+    tex_img = torch.from_numpy(tex_img).cuda()
+    return v, n, f, uv, tex_img
+
 
 
 def total_variation_loss(img):

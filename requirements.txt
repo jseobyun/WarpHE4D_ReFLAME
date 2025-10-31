@@ -5,4 +5,9 @@ numpy>=1.19.4
 pandas>=1.2.4
 seaborn>=0.11.1
 tqdm>=4.54.1
-
+opencv-python
+trimesh
+open3d
+scikit-image
+huggingface_hub
+einops

@@ -16,10 +16,9 @@ from largesteps.parameterize import from_differential, to_differential
 from largesteps.geometry import compute_matrix, compute_vertex_normals, compute_face_normals
 from largesteps.optimize import AdamUniform
 
-from utils import (aa2matrix, matrix2aa, to_np, load_mesh_under_dir, gen_orbit_views, save_flame_params,
-                   total_variation_loss, vertices2landmarks, load_flame_uv, load_p3d_mesh,
+from utils import (to_np, gen_orbit_views, save_flame_params, total_variation_loss, vertices2landmarks, load_flame_uv, load_p3d_mesh,
                    to_cuda, build_o3d_mesh, FaceKeypointDetector)
-
+from datasets import H3DSDataset, Renderme360Dataset, THRPDataset, PolygomDataset, MergedDataset, MultifaceDataset
 
 
 def parse_config():
@@ -28,9 +27,10 @@ def parse_config():
     parser.add_argument("--data_dir", type=str, default="/home/jseob/Downloads/uv_fit_test/013")
     parser.add_argument("--save_dir", type=str, default="/home/jseob/Downloads/uv_fit_test/013")
     ###
-    parser.add_argument("--dataset_name", type=str, default="facescape")
+    parser.add_argument("--dataset_name", type=str, default="multiface")
+    parser.add_argument("--only", type=int, default=2)
     ###
-    parser.add_argument("--opt_lambda", type=int, default=50, help="lambda used in optimization")
+    parser.add_argument("--opt_lambda", type=int, default=45, help="lambda used in optimization")
     parser.add_argument("--rigid_steps", type=int, default=1000, help="Rigid fitting iterations")
     parser.add_argument("--nonrigid_steps", type=int, default=1000, help="Non Rigid fitting iterations")
     parser.add_argument("--texture_steps", type=int, default=1000, help="1K texture map optimization iterations")
@@ -79,62 +79,43 @@ if __name__ == "__main__":
     dataset_name = args.dataset_name
     if dataset_name in ["nphm", "faceverse", "facescape"]:
         data_root = "/media/jseob/7c338ab7-a4a5-460a-a3bb-6c26309b51ba/datasets/head/merged"
-        subj_names = sorted(os.listdir(os.path.join(data_root, dataset_name)))
-        mesh_dirs = [os.path.join(data_root, dataset_name, subj_name) for subj_name in subj_names]
-        print(f"{dataset_name} are prepared : {len(mesh_dirs)}")
+        dataset = MergedDataset(os.path.join(data_root, dataset_name))
+        print(f"{dataset_name} are prepared : {len(dataset)}")
     elif "ioys" in dataset_name:
         data_root = "/home/jseob/Desktop/yjs/nas/data/01_IOYS/body_mesh_from_agisoft_v1"
-        split_names = [
-            "IOYS_Fullbody_3D스캔_원본이미지_01",
-            "IOYS_Fullbody_3D스캔_원본이미지_02",
-            "IOYS_Fullbody_3D스캔_원본이미지_03",
-            "IOYS_Fullbody_3D스캔_원본이미지_04",
-        ]
-        mesh_dirs = []
-        for split_name in split_names:
-            split_dir = os.path.join(data_root, split_name)
-            subj_names = sorted(os.listdir(split_dir))
-            for subj_name in subj_names:
-                mesh_dirs.append(os.path.join(data_root, split_name, subj_name))
-        print(f"{dataset_name} are prepared : {len(mesh_dirs)}")
-   
+        dataset = PolygomDataset(data_root, args.only)
+        print(f"{dataset_name} {args.only} are prepared : {len(dataset)}")
+    elif dataset_name in ["th", "rp"]:        
+        if dataset_name == "th":
+            data_root = "/home/jseob/Desktop/yjs/nas/data/11_BODY/TH2.1/MESH"
+        else:
+            data_root = "/home/jseob/Desktop/yjs/nas/data/11_BODY/RP/MESH"
+        dataset = THRPDataset(data_root)
+        print(f"{dataset_name} are prepared : {len(dataset)}")
 
-    for subj_idx, mesh_dir in enumerate(mesh_dirs):
-        print(f"{mesh_dir} {subj_idx}/{len(mesh_dirs)}")        
-        args.data_dir = mesh_dir
-        args.save_dir = os.path.join(mesh_dir, "meshes")
+    elif dataset_name == "h3ds":
+        data_root = "/media/jseob/7c338ab7-a4a5-460a-a3bb-6c26309b51ba/datasets/h3ds"
+        dataset = H3DSDataset(data_root)
+        print(f"{dataset_name} are prepared : {len(dataset)}")
 
-        if os.path.exists(args.save_dir) and len(os.listdir(args.save_dir)) !=0:
-            print("skipped")
-            continue       
-         
+    elif dataset_name == "renderme":
+        data_root = "/media/jseob/X9/renderme360/processed"
+        dataset = Renderme360Dataset(data_root)
+        print(f"{dataset_name} are prepared : {len(dataset)}")
+    elif dataset_name == "multiface":
+        data_root = "/media/jseob/7c338ab7-a4a5-460a-a3bb-6c26309b51ba/datasets/head/multiface"
+        dataset = MultifaceDataset(data_root)
+        print(f"{dataset_name} are prepared : {len(dataset)}")    
 
+    for subj_idx, (v_ref, n_ref, f_ref, uv_ref, tex_img, save_dir) in enumerate(dataset):
+        print(f"{save_dir} {subj_idx}/{len(dataset)}")                        
         try: ### first try
             if args.save:            
-                os.makedirs(args.save_dir, exist_ok=True)        
+                os.makedirs(save_dir, exist_ok=True)        
             '''
             Load reference (target) mesh and FLAME meta info.
             '''
-            v_ref, n_ref, f_ref, uv_ref, tex_img = load_mesh_under_dir(args.data_dir)    
-
-            ###
-            if "ioys" in dataset_name:
-                flame_params = np.load(os.path.join(mesh_dir, "flame_param.npy"))[400:]
-                R1 = aa2matrix(flame_params[:6]).astype(np.float32)
-                R1_inv = np.linalg.inv(R1)
-                scale1 = float(flame_params[6])
-                trans1 = flame_params[7:].reshape(1, 3).astype(np.float32)
-                R1_inv = torch.from_numpy(R1_inv).cuda()           
-                R1 = torch.from_numpy(R1).cuda() 
-                trans1 = torch.from_numpy(trans1).cuda()
-
-                scale_dot = 5
-
-                v_ref = (R1_inv @ (v_ref/scale1 - trans1).permute(1,0)).permute(1,0)                
-                v_ref = scale_dot * v_ref
-                n_ref = (R1 @ n_ref.permute(1,0)).permute(1,0)
-            ###
-
+            # v_ref, n_ref, f_ref, uv_ref, tex_img = load_mesh_under_dir(args.data_dir)   
 
             flame_model = FLAME("./templates/FLAME2023").cuda()
             full_lmk_faces_idx = flame_model.full_lmk_faces_idx
@@ -327,7 +308,7 @@ if __name__ == "__main__":
 
             if args.save:    
                 ### params
-                rigid_param_path = os.path.join(args.save_dir, "flame_rigid_params.npy")
+                rigid_param_path = os.path.join(save_dir, "flame_rigid_params.npy")
                 save_flame_params(rigid_param_path, flame_params)
                 rigid_flame = trimesh.Trimesh(vertices=v_np, faces=f_np)   
                 
@@ -346,11 +327,11 @@ if __name__ == "__main__":
                 faces_wo_eye_np = np.concatenate(faces_wo_eye_np, axis=0)
             
                 rigid_flame_wo_eye = trimesh.Trimesh(vertices=verts_wo_eye_np, faces=faces_wo_eye_np)        
-                rigid_flame.export(os.path.join(args.save_dir, "flame_rigid_mesh.ply"))
-                rigid_flame_wo_eye.export(os.path.join(args.save_dir, "flame_rigid_mesh_wo_eye.ply"))
+                rigid_flame.export(os.path.join(save_dir, "flame_rigid_mesh.ply"))
+                rigid_flame_wo_eye.export(os.path.join(save_dir, "flame_rigid_mesh_wo_eye.ply"))
                 
             rigid_flame = load_p3d_mesh(
-                os.path.join(args.save_dir, "flame_rigid_mesh_wo_eye.ply"), 
+                os.path.join(save_dir, "flame_rigid_mesh_wo_eye.ply"), 
                 subdiv=2,
                 device="cuda:0") # for double checking existence of flame_rigid_mesh.ply
 
@@ -457,7 +438,7 @@ if __name__ == "__main__":
 
                     o3d.visualization.draw_geometries([pcd, o3d_mesh])
                 nonrigid_flame_wo_eye = trimesh.Trimesh(vertices=v_np, faces=f_np)                   
-                nonrigid_flame_wo_eye.export(os.path.join(args.save_dir, "flame_nonrigid_mesh_wo_eye.ply"))
+                nonrigid_flame_wo_eye.export(os.path.join(save_dir, "flame_nonrigid_mesh_wo_eye.ply"))
                 
             v_final = v.detach()
             f_final = f.detach()
@@ -503,12 +484,13 @@ if __name__ == "__main__":
             tex_vis = cv2.cvtColor(tex_vis, cv2.COLOR_RGB2BGR)
 
             if args.save:
-                tex_path = os.path.join(args.save_dir, "flame_texture.jpg")
+                tex_path = os.path.join(save_dir, "flame_texture.jpg")
                 cv2.imwrite(tex_path, tex_vis)
 
             if args.vis:        
                 cv2.imshow("tex", tex_vis)
                 cv2.waitKey(0)
-        except:
+        except Exception as e:
+            print(e)
             continue    
         
