@@ -13,12 +13,20 @@ class MergedDataset():
         mesh_paths = []
         texture_paths = []        
         subj_names = sorted(os.listdir(self.data_root))
+        dataset_name = os.path.basename(self.data_root)
         for subj_name in subj_names:
             save_dir = os.path.join(os.path.join(self.data_root, subj_name, "meshes"))
-            if os.path.exists(save_dir) and len(os.listdir(save_dir)) !=0:                
+            if os.path.exists(save_dir) and len(os.listdir(save_dir)) ==5:                
                 continue   
-            mesh_paths.append(os.path.join(self.data_root, subj_name, "full_head.obj"))
-            texture_paths.append(os.path.join(self.data_root, subj_name, "full_head.png"))
+            mesh_paths.append(os.path.join(self.data_root, subj_name, "raw.obj"))
+
+            if dataset_name == "nphm":
+                postfix = ".png"
+            elif dataset_name in ["wysiwig", "faceverse"]:
+                postfix = ".jpeg"
+            elif dataset_name == "facescape":
+                postfix = ".jpg"
+            texture_paths.append(os.path.join(self.data_root, subj_name, "material_0"+postfix))
 
         self.mesh_paths = mesh_paths
         self.texture_paths = texture_paths

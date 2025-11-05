@@ -21,8 +21,8 @@ class H3DSDataset():
             subj_names = sorted(os.listdir(version_dir))
             for subj_name in subj_names:
                 save_dir = os.path.join(os.path.join(version_dir, subj_name, "meshes"))
-                if os.path.exists(save_dir) and len(os.listdir(save_dir)) !=0:                    
-                    continue   
+                # if os.path.exists(save_dir) and len(os.listdir(save_dir)) !=0:                    
+                #     continue   
                 mesh_paths.append(os.path.join(version_dir, subj_name, "full_head.obj"))
                 texture_paths.append(os.path.join(version_dir, subj_name, "full_head.png"))
 

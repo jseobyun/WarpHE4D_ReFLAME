@@ -11,3 +11,5 @@ open3d
 scikit-image
 huggingface_hub
 einops
+pyyaml
+pillow

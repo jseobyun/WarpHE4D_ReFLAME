@@ -27,14 +27,14 @@ def parse_config():
     parser.add_argument("--data_dir", type=str, default="/home/jseob/Downloads/uv_fit_test/013")
     parser.add_argument("--save_dir", type=str, default="/home/jseob/Downloads/uv_fit_test/013")
     ###
-    parser.add_argument("--dataset_name", type=str, default="multiface")
+    parser.add_argument("--dataset_name", type=str, default="wysiwig")
     parser.add_argument("--only", type=int, default=2)
     ###
     parser.add_argument("--opt_lambda", type=int, default=45, help="lambda used in optimization")
     parser.add_argument("--rigid_steps", type=int, default=1000, help="Rigid fitting iterations")
     parser.add_argument("--nonrigid_steps", type=int, default=1000, help="Non Rigid fitting iterations")
     parser.add_argument("--texture_steps", type=int, default=1000, help="1K texture map optimization iterations")
-    parser.add_argument("--azim_range", type=float, default=150, help="azimuth angle range [-a, a] for renderer. 150 degree recomennded")
+    parser.add_argument("--azim_range", type=float, default=90, help="azimuth angle range [-a, a] for renderer. 150 degree recomennded")
 
     ### optional : change these if you need.
     parser.add_argument("--w_uv", type=float, default=1.0, help="weight of UV loss (Rigid + Non-Rigid)")
@@ -47,7 +47,7 @@ def parse_config():
     parser.add_argument("--lr_nonrigid", type=float, default=0.03, help="learning rate of non-rigid optimization")
 
     ### debugging
-    parser.add_argument("--vis", action="store_true", default=False, help="enable visualization for debugging")
+    parser.add_argument("--vis", action="store_true", default=True, help="enable visualization for debugging")
     parser.add_argument("--save", action="store_true", default=True, help="enable save")
     args = parser.parse_args()
 
@@ -77,7 +77,7 @@ if __name__ == "__main__":
 
     ### heuristic overwrite 
     dataset_name = args.dataset_name
-    if dataset_name in ["nphm", "faceverse", "facescape"]:
+    if dataset_name in ["nphm", "faceverse", "facescape", "wysiwig"]:
         data_root = "/media/jseob/7c338ab7-a4a5-460a-a3bb-6c26309b51ba/datasets/head/merged"
         dataset = MergedDataset(os.path.join(data_root, dataset_name))
         print(f"{dataset_name} are prepared : {len(dataset)}")
