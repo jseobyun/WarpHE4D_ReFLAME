@@ -28,7 +28,7 @@ def parse_config():
     parser.add_argument("--save_dir", type=str, default="/home/jseob/Downloads/uv_fit_test/013")
     ###
     parser.add_argument("--dataset_name", type=str, default="wysiwig")
-    parser.add_argument("--only", type=int, default=2)
+    parser.add_argument("--only", type=int, default=-1)
     ###
     parser.add_argument("--opt_lambda", type=int, default=45, help="lambda used in optimization")
     parser.add_argument("--rigid_steps", type=int, default=1000, help="Rigid fitting iterations")
@@ -47,7 +47,7 @@ def parse_config():
     parser.add_argument("--lr_nonrigid", type=float, default=0.03, help="learning rate of non-rigid optimization")
 
     ### debugging
-    parser.add_argument("--vis", action="store_true", default=True, help="enable visualization for debugging")
+    parser.add_argument("--vis", action="store_true", default=False, help="enable visualization for debugging")
     parser.add_argument("--save", action="store_true", default=True, help="enable save")
     args = parser.parse_args()
 

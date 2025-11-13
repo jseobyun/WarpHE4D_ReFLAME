@@ -5,19 +5,20 @@ import numpy as np
 from PIL import Image
 
 class MergedDataset():
-    def __init__(self, data_root):
+    def __init__(self, data_root, force_overwrite=False):
         self.data_root = data_root         
-        self.gather_paths()
+        self.gather_paths(force_overwrite)
 
-    def gather_paths(self):
+    def gather_paths(self, force_overwrite):
         mesh_paths = []
         texture_paths = []        
         subj_names = sorted(os.listdir(self.data_root))
         dataset_name = os.path.basename(self.data_root)
         for subj_name in subj_names:
             save_dir = os.path.join(os.path.join(self.data_root, subj_name, "meshes"))
-            if os.path.exists(save_dir) and len(os.listdir(save_dir)) ==5:                
-                continue   
+            if not force_overwrite:
+                if os.path.exists(save_dir) and len(os.listdir(save_dir)) !=0:                
+                    continue   
             mesh_paths.append(os.path.join(self.data_root, subj_name, "raw.obj"))
 
             if dataset_name == "nphm":

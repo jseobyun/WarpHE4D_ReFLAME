@@ -222,40 +222,46 @@ def total_variation_loss(img):
         torch.mean(torch.abs(img[:, :-1, :] - img[:, 1:, :]))
 
 
-def gen_orbit_views(azim_range=80, front_range=30, num_gens=40, dist=4.3):    
+def gen_orbit_views(elev_range=0, azim_range=80, front_range=30, num_gens=40, dist=4.3):    
     elev = 0
+    if elev_range != 0:
+        elevs = np.linspace(-abs(elev_range), abs(elev_range), num_gens) / 180 * np.pi
+    else:
+        elevs = [0]
+
     azims = np.linspace(-abs(azim_range), abs(azim_range), num_gens) / 180 * np.pi
 
     T_kgs = []
     T_gks = []
     view_mask = []
-    for azim in azims:
-        x = dist * np.cos(elev) * np.sin(azim)
-        y = dist * np.sin(elev)
-        z = dist * np.cos(elev) * np.cos(azim)
+    for elev in elevs:
+        for azim in azims:
+            x = dist * np.cos(elev) * np.sin(azim)
+            y = dist * np.sin(elev)
+            z = dist * np.cos(elev) * np.cos(azim)
 
-        center = np.array([x, y, z])
+            center = np.array([x, y, z])
 
-        upvector = np.array([0.0, 1.0, 0.0])
-        zaxis = -center / np.linalg.norm(center)
-        xaxis = np.cross(zaxis, upvector)
-        xaxis = xaxis / np.linalg.norm(xaxis)
-        yaxis = np.cross(zaxis, xaxis)
-        yaxis = yaxis / np.linalg.norm(yaxis)
+            upvector = np.array([0.0, 1.0, 0.0])
+            zaxis = -center / np.linalg.norm(center)
+            xaxis = np.cross(zaxis, upvector)
+            xaxis = xaxis / np.linalg.norm(xaxis)
+            yaxis = np.cross(zaxis, xaxis)
+            yaxis = yaxis / np.linalg.norm(yaxis)
 
-        R = np.concatenate([xaxis[:, None], yaxis[:, None], zaxis[:, None]], axis=1)  # T_gk
-        t = center
-        T_gk = np.eye(4).astype(np.float32)
-        T_gk[:3, :3] = R
-        T_gk[:3, -1] = t
-        T_gk = torch.from_numpy(T_gk).cuda()
-        T_kg = torch.linalg.inv(T_gk)
-        T_kgs.append(T_kg)
-        T_gks.append(T_gk)
-        if azim >= -abs(front_range) / 180 * np.pi and azim <= abs(front_range) / 180 * np.pi:
-            view_mask.append(True)  # valid almost front view
-        else:
-            view_mask.append(False)
+            R = np.concatenate([xaxis[:, None], yaxis[:, None], zaxis[:, None]], axis=1)  # T_gk
+            t = center
+            T_gk = np.eye(4).astype(np.float32)
+            T_gk[:3, :3] = R
+            T_gk[:3, -1] = t
+            T_gk = torch.from_numpy(T_gk).cuda()
+            T_kg = torch.linalg.inv(T_gk)
+            T_kgs.append(T_kg)
+            T_gks.append(T_gk)
+            if azim >= -abs(front_range) / 180 * np.pi and azim <= abs(front_range) / 180 * np.pi:
+                view_mask.append(True)  # valid almost front view
+            else:
+                view_mask.append(False)
     return T_kgs, T_gks, np.asarray(view_mask)
 
 

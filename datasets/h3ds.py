@@ -5,24 +5,24 @@ import numpy as np
 from PIL import Image
 
 class H3DSDataset():
-    def __init__(self, data_root):
-        self.data_root = data_root 
+    def __init__(self, data_root, force_overwrite=False):
+        self.data_root = data_root         
 
-        self.gather_paths()
+        self.gather_paths(force_overwrite)
 
-    def gather_paths(self):
+    def gather_paths(self, force_overwrite):
         mesh_paths = []
         texture_paths = []
 
-        version_dirs = [
-            os.path.join(self.data_root, "h3ds_v0.2"),
+        version_dirs = [            
             os.path.join(self.data_root, "h3ds_0.4")]
         for version_dir in version_dirs:
             subj_names = sorted(os.listdir(version_dir))
             for subj_name in subj_names:
                 save_dir = os.path.join(os.path.join(version_dir, subj_name, "meshes"))
-                # if os.path.exists(save_dir) and len(os.listdir(save_dir)) !=0:                    
-                #     continue   
+                if not force_overwrite:
+                    if os.path.exists(save_dir) and len(os.listdir(save_dir)) !=0:                    
+                        continue   
                 mesh_paths.append(os.path.join(version_dir, subj_name, "full_head.obj"))
                 texture_paths.append(os.path.join(version_dir, subj_name, "full_head.png"))
 

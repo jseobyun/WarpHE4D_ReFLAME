@@ -6,12 +6,12 @@ from PIL import Image
 from utils import aa2matrix
 
 class THRPDataset():
-    def __init__(self, data_root):
+    def __init__(self, data_root, force_overwrite=False):
         self.data_root = data_root 
 
-        self.gather_paths()
+        self.gather_paths(force_overwrite)
 
-    def gather_paths(self):
+    def gather_paths(self, force_overwrite):
         mesh_paths = []
         texture_paths = []
         flame_param_paths = []
@@ -19,8 +19,9 @@ class THRPDataset():
         subj_names = sorted(os.listdir(self.data_root))
         for subj_name in subj_names:
             save_dir = os.path.join(os.path.join(self.data_root, subj_name, "meshes"))
-            if os.path.exists(save_dir) and len(os.listdir(save_dir)) !=0:                
-                continue   
+            if not force_overwrite:
+                if os.path.exists(save_dir) and len(os.listdir(save_dir)) !=0:                
+                    continue   
             mesh_paths.append(os.path.join(self.data_root, subj_name, subj_name+".obj"))
             texture_path = os.path.join(self.data_root, subj_name, subj_name + ".jpg")
             if not os.path.exists(texture_path):

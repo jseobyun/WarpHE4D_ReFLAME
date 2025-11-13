@@ -20,12 +20,12 @@ from PIL import Image
 
 '''
 class MultifaceDataset():
-    def __init__(self, data_root):
+    def __init__(self, data_root, force_overwrite=False):
         self.data_root = data_root 
 
-        self.gather_paths()
+        self.gather_paths(force_overwrite)
 
-    def gather_paths(self):
+    def gather_paths(self, force_overwrite):
         mesh_paths = []
         pose_paths = []
         texture_paths = []       
@@ -44,8 +44,9 @@ class MultifaceDataset():
 
                     save_dir = expr_dir.replace("tracked_mesh", "registered_mesh")
                     save_dir = os.path.join(save_dir, id)
-                    if os.path.exists(save_dir) and len(os.listdir(save_dir)) !=0:                    
-                        continue   
+                    if not force_overwrite:
+                        if os.path.exists(save_dir) and len(os.listdir(save_dir)) !=0:                    
+                            continue   
 
                     mesh_paths.append(os.path.join(expr_dir, id+".obj"))
                     pose_paths.append(os.path.join(expr_dir, id+"_transform.txt"))

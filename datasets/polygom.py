@@ -6,12 +6,12 @@ from PIL import Image
 from utils import aa2matrix
 
 class PolygomDataset():
-    def __init__(self, data_root, only=-1):
+    def __init__(self, data_root, only=-1, force_overwrite=False):
         self.data_root = data_root 
         self.only = only
-        self.gather_paths()
+        self.gather_paths(force_overwrite)
 
-    def gather_paths(self):
+    def gather_paths(self, force_overwrite):
         split_names = [    
             "IOYS_Fullbody_3D스캔_원본이미지_01",
             "IOYS_Fullbody_3D스캔_원본이미지_02",
@@ -29,8 +29,9 @@ class PolygomDataset():
             subj_names = sorted(os.listdir(split_dir))
             for subj_name in subj_names:
                 save_dir = os.path.join(os.path.join(split_dir, subj_name, "meshes"))
-                if os.path.exists(save_dir) and len(os.listdir(save_dir)) !=0:                    
-                    continue     
+                if not force_overwrite:
+                    if os.path.exists(save_dir) and len(os.listdir(save_dir)) !=0:                    
+                        continue     
                 
                 mesh_paths.append(os.path.join(split_dir, subj_name, "mesh.obj"))                
                 texture_paths.append(os.path.join(split_dir, subj_name, "mesh.jpg"))

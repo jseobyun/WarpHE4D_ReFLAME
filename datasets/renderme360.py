@@ -6,12 +6,12 @@ from PIL import Image
 
 
 class Renderme360Dataset():
-    def __init__(self, data_root):
+    def __init__(self, data_root, force_overwrite=False):
         self.data_root = data_root 
 
-        self.gather_paths()
+        self.gather_paths(force_overwrite)
 
-    def gather_paths(self):
+    def gather_paths(self, force_overwrite):
         mesh_paths = []
         mesh_coord_changers = []
         texture_paths = []
@@ -21,8 +21,9 @@ class Renderme360Dataset():
             mesh_dir = os.path.join(self.data_root, subj_name, "e0_results/frames/000")
             mesh_path = os.path.join(mesh_dir, "mesh.obj")
             save_dir = os.path.join(os.path.join(mesh_dir, "meshes"))
-            if os.path.exists(save_dir) and len(os.listdir(save_dir)) !=0:                
-                continue  
+            if not force_overwrite:
+                if os.path.exists(save_dir) and len(os.listdir(save_dir)) !=0:                
+                    continue  
             texture_path = os.path.join(mesh_dir, "mesh.jpg")
             mesh_coord_changer = np.load(os.path.join(mesh_dir, "mesh_coord_changer.npy")).astype(np.float32)
                  
